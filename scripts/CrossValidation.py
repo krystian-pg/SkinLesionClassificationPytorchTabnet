@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
+from imblearn.combine import SMOTETomek
 from TabNetWrapper import TabNetWrapper
+
 
 class CrossValidation:
     def __init__(self, n_splits=5):
@@ -15,15 +17,19 @@ class CrossValidation:
             X_train, y_train = X[train_idx], y[train_idx]
             X_valid, y_valid = X[valid_idx], y[valid_idx]
 
+            # Apply SMOTETomek to the training data
+            smotetomek = SMOTETomek(random_state=42)
+            X_train_resampled, y_train_resampled = smotetomek.fit_resample(X_train, y_train)
+
             # Initialize TabNet with the best hyperparameters
             tabnet = TabNetWrapper(
-                input_dim=X_train.shape[1],
+                input_dim=X_train_resampled.shape[1],
                 output_dim=len(set(y)),
                 **best_params
             )
 
             # Train the model and capture the training history
-            tabnet.train(X_train, y_train, X_valid, y_valid, patience=100, max_epochs=100000)
+            tabnet.train(X_train_resampled, y_train_resampled, X_valid, y_valid, patience=100, max_epochs=100000)
             
             # Store the best model for this fold
             best_models.append(tabnet.model)

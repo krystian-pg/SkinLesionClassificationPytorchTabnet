@@ -1,6 +1,10 @@
 from pytorch_tabnet.tab_model import TabNetClassifier
 import torch
 
+# Seed
+torch.manual_seed(42)
+
+
 class TabNetWrapper:
     def __init__(self, input_dim, output_dim, n_d=8, n_a=8, n_steps=3, gamma=1.3, lambda_sparse=1e-3, lr=0.02, **kwargs):
         # Initialize the optimizer with the learning rate

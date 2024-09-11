@@ -6,6 +6,10 @@ from sklearn.metrics import classification_report
 import pandas as pd
 from torch.utils.data import DataLoader
 
+# Seed
+torch.manual_seed(42)
+np.random.seed(42)
+
 class TabNetModelTester:
     def __init__(self, test_dataset, num_classes=7, class_names=None, batch_size=32, device=None):
         """

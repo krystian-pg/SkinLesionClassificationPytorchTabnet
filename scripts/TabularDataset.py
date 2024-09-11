@@ -1,24 +1,23 @@
-# TabularDataset.py
-
 import pandas as pd
 import re
 from torch.utils.data import Dataset
 
 class TabularDataset(Dataset):
-    def __init__(self, csv_file1, csv_file2, target_column, transform=None):
+    def __init__(self, csv_file1, target_column, csv_file2=None, transform=None):
         self.data1 = pd.read_csv(csv_file1)
-        self.data2 = pd.read_csv(csv_file2)
-
-        # Keep only the relevant columns including 'image_id'
         self.data1 = self.keep_relevant_columns(self.data1)
-        self.data2 = self.keep_relevant_columns(self.data2)
 
-        # Merge the two datasets on 'image_id'
-        self.data = pd.merge(self.data1, self.data2, on='image_id')
+        if csv_file2:
+            self.data2 = pd.read_csv(csv_file2)
+            self.data2 = self.keep_relevant_columns(self.data2)
+            # Merge the two datasets on 'image_id'
+            self.data = pd.merge(self.data1, self.data2, on='image_id')
+        else:
+            self.data = self.data1
 
-        # Ensure the target column exists in the merged dataset
+        # Ensure the target column exists in the dataset
         if target_column not in self.data.columns:
-            raise ValueError(f"Target column '{target_column}' not found in the merged dataset.")
+            raise ValueError(f"Target column '{target_column}' not found in the dataset.")
 
         # Extract target and features
         self.target = self.data[target_column].values
